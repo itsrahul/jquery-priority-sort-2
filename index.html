@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>jQuery Fundamentals :: Priority Sort 1</title>
+	<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body>
+  <div id="container">
+    <ul class="priority-sort" data-initial-items-count=3>
+      <li data-priority-order=2> Item A</li>
+      <li data-priority-order=1> Item B</li>
+      <li> Item D</li>
+      <li> Item G</li>
+      <li> Item F</li>
+      <li data-priority-order=3> Item C</li>
+    </ul>
+
+     <ul class="priority-sort" data-initial-items-count=2>
+      <li data-priority-order=2> Item A</li>
+      <li data-priority-order=1> Item B</li>
+      <li> Item D</li>
+      <li> Item G</li>
+      <li> Item F</li>
+      <li data-priority-order=3> Item C</li>
+    </ul>
+
+     <ul class="priority-sort" data-initial-items-count=1>
+      <li data-priority-order=2> Item A</li>
+      <li data-priority-order=1> Item B</li>
+      <li> Item D</li>
+      <li> Item G</li>
+      <li> Item F</li>
+      <li data-priority-order=3> Item C</li>
+    </ul>
+    
+    <div>
+    </div>
+  </div>
+  <script src="libs/jquery-3.4.1.js"></script>
+  <script type="module" src="js/sort.js"></script>
+  
+</body>
+</html>
