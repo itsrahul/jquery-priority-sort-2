@@ -37,24 +37,24 @@ export default class PrioritySort
     $(this.seeLessElement).on("click", () => this.onClickSee(this.seeLessElement));
   }
   
-  onClickSortBy(add, remove)
+  onClickSortBy(currentVal, oldVal)
   {
     $(event.target)
       .addClass(this.highlightClass)
-      .siblings("button"+remove).removeClass(this.highlightClass);
+      .siblings("button"+oldVal).removeClass(this.highlightClass);
     event.preventDefault();
-    this.sortBy = add;
+    this.sortBy = currentVal;
 
     this.sortListItems($(event.target).parent());
   }
 
-  onClickOrderBy(add, remove)
+  onClickOrderBy(currentVal, oldVal)
   {
     $(event.target)
       .addClass(this.highlightClass)
-      .siblings("button"+remove).removeClass(this.highlightClass);
+      .siblings("button"+oldVal).removeClass(this.highlightClass);
     event.preventDefault();
-    this.orderBy = add;
+    this.orderBy = currentVal;
     this.sortListItems($(event.target).parent());
   }
 
