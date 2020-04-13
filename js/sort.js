@@ -1,8 +1,8 @@
-import PrioritySort from './PrioritySort.js';
+import PrioritySortManager from './PrioritySort.js';
 
 $(document).ready(function(){
   let options  = {
-    $listElement: $(".priority-sort"),
+    listClassName: ".priority-sort",
     sortPriority: ".priority",
     sortAlphabetic: ".alpha",
     sortAscending: ".ascending",
@@ -13,6 +13,6 @@ $(document).ready(function(){
     priorityOrderAttribute: "data-priority-order",
     highlightClass: "highlight",
   };
-  let sort = new PrioritySort(options);
+  let sort = new PrioritySortManager(options);
   sort.init();
 });

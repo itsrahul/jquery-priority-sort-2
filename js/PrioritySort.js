@@ -1,8 +1,157 @@
-export default class PrioritySort
+class PriorityList
+{
+  constructor(list, managerObject)
+  {
+    this.listItems = [];
+    this.list      = list;
+    this.manager   = managerObject;
+    this.count     = ".less";
+    this.sortBy    = ".priority";
+    this.orderBy   = ".ascending";
+    this.initialCountAttribute = $(list).attr("data-initial-items-count" );
+
+    $(this.list).children().each((_i, item) => {
+      let listItem = new ListItem($(item));
+      this.listItems.push(listItem);
+    })
+  }
+
+  init()
+  {
+   
+
+  }
+
+  bindEvents()
+  {
+    
+    $(this.list).find(this.manager.sortAlphabetic).on("click", () => this.onClickSortBy(this.manager.sortAlphabetic, this.manager.sortPriority));
+    $(this.list).find(this.manager.sortPriority).on("click", () => this.onClickSortBy(this.manager.sortPriority, this.manager.sortAlphabetic));
+
+    $(this.list).find(this.manager.sortAscending).on("click", () => this.onClickOrderBy(this.manager.sortAscending, this.manager.sortDescending));
+    $(this.list).find(this.manager.sortDescending).on("click", () => this.onClickOrderBy(this.manager.sortDescending, this.manager.sortAscending));
+
+    $(this.list).find(this.manager.seeAllElement).on("click", () => this.onClickSee(this.manager.seeAllElement));
+    $(this.list).find(this.manager.seeLessElement).on("click", () => this.onClickSee(this.manager.seeLessElement));
+
+    $(this.list).find('.delete').on("click", () => this.deleteItem() );
+  }
+
+  deleteItem()
+  {
+    $(this.listItems).each((index, listItem) => {
+      if(listItem.item[0] == $(event.target).parent().hide()[0])
+      {
+        this.listItems.splice(index, 1);
+      }
+    })
+
+    this.sortListItems();
+  }
+  
+  onClickSortBy(currentVal, oldVal)
+  {
+    $(event.target)
+      .addClass(this.manager.highlightClass)
+      .siblings("button"+oldVal).removeClass(this.manager.highlightClass);
+    event.preventDefault();
+    this.sortBy = currentVal;
+    this.sortListItems();
+  }
+
+  onClickOrderBy(currentVal, oldVal)
+  {
+    $(event.target)
+      .addClass(this.manager.highlightClass)
+      .siblings("button"+oldVal).removeClass(this.manager.highlightClass);
+    event.preventDefault();
+    this.orderBy = currentVal;
+    this.sortListItems();
+  }
+
+  onClickSee(type)
+  {
+    $(event.target).toggle();
+    $(event.target).siblings("a").toggle();
+    event.preventDefault();
+    this.count = type;
+    this.sortListItems();
+  }
+
+
+  sortListItems()
+  {
+    this.listItems.forEach((item) => item.item.hide());
+    let sortedItems = this.listItems.sort( (a,b) => this.sortArrayFunction(a, b, this.sortBy ))
+
+    if(this.count == ".less")
+    {
+      let count = this.initialCountAttribute; 
+      sortedItems = sortedItems.slice(0, count);
+    }
+    if(this.orderBy == ".descending")
+    {
+      sortedItems = sortedItems.reverse();
+    }
+    sortedItems.forEach(element => $(this.list).append(element.item.show()) );    
+  }
+
+  sortArrayFunction(a, b, type)
+  {
+    let orderA;
+    let orderB;
+    if(type == ".priority")
+    {
+      orderA = a.priority || 100000;
+      orderB = b.priority || 100000;
+    }
+    else
+    {
+      orderA = a.text;
+      orderB = b.text;
+    }
+    if (orderA < orderB) {
+      return  -1;
+    }
+    if (orderA > orderB) {
+      return 1;
+    }
+    return 0;
+  }
+  
+}
+
+class ListItem
+{
+  constructor($item)
+  {
+    this.item = $item;
+    this.priority =  $item.attr("data-priority-order");
+    this.text = $item.text();
+    this.init()
+  }
+
+  init()
+  {
+    if(this.priority)
+    {
+      this.item.append(` (${this.priority})`)
+    }
+
+    let delButton =  $("<button>", {'type': 'button', 'class': 'delete'}).text("Delete");
+    this.item.append(delButton);
+  }
+
+}
+
+
+export default class PrioritySortManager
 {
   constructor(options)
   {
-    this.$listElement           = options.$listElement
+    this.listClassName          = options.listClassName;
+    this.$listElement           = $(this.listClassName)
+    this.priorityLists          = [];
     this.sortAlphabetic         = options.sortAlphabetic;
     this.sortPriority           = options.sortPriority;
     this.sortAscending          = options.sortAscending;
@@ -12,127 +161,51 @@ export default class PrioritySort
     this.initialCountAttribute  = options.initialCountAttribute;
     this.priorityOrderAttribute = options.priorityOrderAttribute;
     this.highlightClass         = options.highlightClass;
-    this.count                  = ".less";
-    this.sortBy                 = ".priority";
-    this.orderBy                = ".ascending";
+
   }
 
   init()
   {
-    this.addSeeOptions();
-    this.bindEvents();
-    this.sortListItems(this.$listElement);
+    this.createPriorityList();
+    for(let listItem of this.priorityLists)
+    {
+      this.addSeeOptions(listItem);
+      listItem.bindEvents();
+      listItem.sortListItems();
+    }
     $(this.seeLessElement).toggle();
   }
 
-  bindEvents()
-  {
-    $(this.sortAlphabetic).on("click", () => this.onClickSortBy(this.sortAlphabetic, this.sortPriority));
-    $(this.sortPriority).on("click", () => this.onClickSortBy(this.sortPriority, this.sortAlphabetic));
-
-    $(this.sortAscending).on("click", () => this.onClickOrderBy(this.sortAscending, this.sortDescending));
-    $(this.sortDescending).on("click", () => this.onClickOrderBy(this.sortDescending, this.sortAscending));
-
-    $(this.seeAllElement).on("click", () => this.onClickSee(this.seeAllElement));
-    $(this.seeLessElement).on("click", () => this.onClickSee(this.seeLessElement));
-  }
-  
-  onClickSortBy(currentVal, oldVal)
-  {
-    $(event.target)
-      .addClass(this.highlightClass)
-      .siblings("button"+oldVal).removeClass(this.highlightClass);
-    event.preventDefault();
-    this.sortBy = currentVal;
-
-    this.sortListItems($(event.target).parent());
-  }
-
-  onClickOrderBy(currentVal, oldVal)
-  {
-    $(event.target)
-      .addClass(this.highlightClass)
-      .siblings("button"+oldVal).removeClass(this.highlightClass);
-    event.preventDefault();
-    this.orderBy = currentVal;
-    this.sortListItems($(event.target).parent());
-  }
-
-  onClickSee(type)
-  {
-    $(event.target).toggle();
-    $(event.target).siblings("a").toggle();
-    event.preventDefault();
-    this.count = type;
-    this.sortListItems($(event.target).parent());
-  }
-
-
-  addSeeOptions()
+  createPriorityList()
   {
     for(let listItem of this.$listElement)
     {
-      let sortPriority   = $("<button>", {'type': 'button', 'class': 'priority highlight'}).text("Priority");
-      let sortAlphabetic = $("<button>", {'type': 'button', 'class': 'alpha'}).text("Alphabetic");
-      let sortAscending  = $("<button>", {'type': 'button', 'class': 'ascending highlight'}).text("Ascend");
-      let sortDescending = $("<button>", {'type': 'button', 'class': 'descending'}).text("Descend");
-      let seeAll = $("<a>", {'href': '', 'class': 'all'}).text("See All");
-      let seeLess = $("<a>", {'href': '', 'class': 'less'}).text("See Less");
-
-      $(listItem).prepend(sortAlphabetic);
-      $(listItem).prepend(sortPriority);
-      $(listItem).prepend("<br>");
-      $(listItem).prepend(sortDescending);
-      $(listItem).prepend(sortAscending);
-      $(listItem).append(seeAll);
-      $(listItem).append(seeLess);
-      
+      let newList = new PriorityList(listItem, this);
+      this.priorityLists.push(newList);
     }
-
   }
 
-  sortListItems(arrayList)
+
+  addSeeOptions(listItem)
   {
-    for(let listItem of arrayList)
-    {
-      let items = Array.prototype
-        .slice.call( $(listItem).children("li").hide() )
-        .sort( (a,b) => this.sortArrayFunction(a, b, this.sortBy ))
-        
-      if(this.count == ".less")
-      {
-        let count = $(listItem).attr(this.initialCountAttribute);  
-        items = items.slice(0, count);
-      }
-      if(this.orderBy == ".descending")
-      {
-        items = items.reverse();
-      }
+    let sortPriority   = $("<button>", {'type': 'button', 'class': 'priority highlight'}).text("Priority");
+    let sortAlphabetic = $("<button>", {'type': 'button', 'class': 'alpha'}).text("Alphabetic");
+    let sortAscending  = $("<button>", {'type': 'button', 'class': 'ascending highlight'}).text("Ascend");
+    let sortDescending = $("<button>", {'type': 'button', 'class': 'descending'}).text("Descend");
+    let seeAll = $("<a>", {'href': '', 'class': 'all'}).text("See All");
+    let seeLess = $("<a>", {'href': '', 'class': 'less'}).text("See Less");
 
-      items.forEach(element => $(listItem).append($(element).show()) );
-    }
+    $(listItem.list).prepend(sortAlphabetic);
+    $(listItem.list).prepend(sortPriority);
+    $(listItem.list).prepend("<br>");
+    $(listItem.list).prepend(sortDescending);
+    $(listItem.list).prepend(sortAscending);
+    $(listItem.list).prepend("<br>");
+    $(listItem.list).prepend(seeAll);
+    $(listItem.list).prepend(seeLess);
   }
 
-  sortArrayFunction(a, b, type)
-  {
-    let orderA;
-    let orderB;
-    if(type == ".priority")
-    {
-      orderA = $(a).attr(this.priorityOrderAttribute) || 40;
-      orderB = $(b).attr(this.priorityOrderAttribute) || 40;
-    }
-    else
-    {
-      orderA = $(a).prop("textContent");
-      orderB = $(b).prop("textContent");
-    }
-    if (orderA < orderB) {
-      return -1;
-    }
-    if (orderA > orderB) {
-      return 1;
-    }
-    return 0;
-  }
+
+
+  
 }
