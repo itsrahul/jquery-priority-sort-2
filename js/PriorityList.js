@@ -7,7 +7,7 @@ export default class PriorityList
     this.sortedListItems = [];
     this.list      = list;
     this.manager   = managerObject;
-    this.count     = "less";
+    this.count     = ".less";
     this.sortBy    = "priority";
     this.orderBy   = "ascending";
     this.initialCountAttribute = $(list).attr("data-initial-items-count" );
@@ -70,7 +70,7 @@ export default class PriorityList
     $(event.target).toggle();
     $(event.target).siblings("a").toggle();
     event.preventDefault();
-    this.count = event.target.id;
+    this.count = "."+ event.target.id;
     this.sortListItems();
     this.display();
   }
@@ -84,7 +84,7 @@ export default class PriorityList
     {
       this.sortedListItems = this.sortedListItems.reverse();
     }
-    if(this.count == "less")
+    if(this.count == ".less")
     {
       let count = this.initialCountAttribute;
       this.sortedListItems = this.sortedListItems.slice(0, count);
